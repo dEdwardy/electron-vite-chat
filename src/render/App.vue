@@ -1,16 +1,27 @@
 <template>
-  <Layout>
+  <CustomLayout v-if="username">
     <template #main>
-       <router-view></router-view>
+      <router-view></router-view>
     </template>
-  </Layout>
+  </CustomLayout>
+  <Login v-else />
 </template>
 
 <script>
-import Layout from '@/components/Layout.vue'
+import CustomLayout from '@/components/Layout.vue'
+import Login from '@/views/Login.vue'
+import { ref } from 'vue'
+import { useStore } from 'vuex'
 export default {
   components: {
-    Layout
+    CustomLayout,
+    Login
+  },
+  setup () {
+    const store = useStore()
+    return {
+      username: store.state.username
+    }
   }
 }
 // This starter template is using Vue 3 experimental <script setup> SFCs

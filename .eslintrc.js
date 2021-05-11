@@ -15,5 +15,6 @@ module.exports = {
     'vue'
   ],
   rules: {
+    'no-v-model-argument': false
   }
 }

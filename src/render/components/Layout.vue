@@ -58,6 +58,7 @@
 const { ipcRenderer } = require('electron')
 import { ref } from 'vue'
 export default {
+  name:'custom-layout',
   setup () {
     const toMain = (msg) => ipcRenderer.send(msg)
     const current = ref(0)
