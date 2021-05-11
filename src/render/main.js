@@ -6,7 +6,8 @@ import 'normalize.css'
 import router from '@/router'
 import store from '@/store'
 import SvgIcon from '@/components/SvgIcon.vue'
-// import { Form, Button, FormItem } from 'ant-design-vue'
+import '@/common/public.scss'
+
 createApp(App)
   .use(router)
   .use(store)

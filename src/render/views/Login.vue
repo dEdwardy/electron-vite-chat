@@ -49,13 +49,14 @@
 </template>
 
 <script>
-import { defineComponent, reactive, toRefs } from 'vue'
+import { defineComponent, inject, reactive, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 const { ipcRenderer } = require('electron')
 
 export default defineComponent({
   setup () {
+    const socket = inject('socket')
     const router = useRouter()
     const store = useStore()
     const state = reactive({
@@ -72,6 +73,7 @@ export default defineComponent({
       if (!state.form.username) return
       console.log(state.form.username)
       store.commit('setUsername',state.form.username)
+      socket.emit('login',state.form.username)
       router.push({
         path: '/home'
       })

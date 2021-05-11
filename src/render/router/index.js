@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import Home from '../views/Home.vue'
 
 const routes = [
   {
@@ -7,8 +8,24 @@ const routes = [
     component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue'),
   },{
     path: '/home',
-    name: 'home',
-    component: () => import(/* webpackChunkName: "home" */ '../views/Home.vue'),
+    component: Home,
+    children:[
+      {
+        path:':id?',
+        name:'message',
+        component:() => import(/* webpackChunkName: "message" */ '../views/Message.vue'),
+      },
+      {
+        path:'contact',
+        name:'contact',
+        component:() => import(/* webpackChunkName: "contact" */ '../views/Contact.vue'),
+      },
+      {
+        path:'cloud',
+        name:'cloud',
+        component:() => import(/* webpackChunkName: "cloud" */ '../views/Cloud.vue'),
+      }
+    ]
   },
 ]
 const router = createRouter({

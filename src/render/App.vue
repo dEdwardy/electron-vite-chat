@@ -1,29 +1,35 @@
 <template>
-  <CustomLayout v-if="username">
-    <template #main>
-      <router-view></router-view>
-    </template>
-  </CustomLayout>
-  <Login v-else />
+  <router-view></router-view>
 </template>
 
 <script>
-import CustomLayout from '@/components/Layout.vue'
-import Login from '@/views/Login.vue'
-import { ref } from 'vue'
+import io from 'socket.io-client'
+import { defineComponent, provide, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
-export default {
-  components: {
-    CustomLayout,
-    Login
-  },
+export default defineComponent({
   setup () {
     const store = useStore()
-    return {
-      username: store.state.username
+    const username = store.state.username
+    const socket = io.connect('http://192.168.0.127:3000', {
+      transports: ['websocket']
+    })
+    if (username) {
+      socket.on('online_users', users => {
+        console.error(users)
+        store.commit('setOnlineUsers', users)
+      })
+      socket.on('onlineChange', () => {
+        console.error('更新好友列表')
+        socket.emit('online_users')
+      })
     }
+    onBeforeUnmount(() => {
+      socket.disconnect()
+      socket = null
+    })
+    provide('socket', socket)
   }
-}
+})
 // This starter template is using Vue 3 experimental <script setup> SFCs
 // Check out https://github.com/vuejs/rfcs/blob/script-setup-2/active-rfcs/0000-script-setup.md
 </script>

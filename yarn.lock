@@ -4639,6 +4639,11 @@ vue-eslint-parser@^7.6.0:
     esquery "^1.4.0"
     lodash "^4.17.15"
 
+vue-native-websocket-vue3@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.nlark.com/vue-native-websocket-vue3/download/vue-native-websocket-vue3-3.1.0.tgz#e66ce6b88a1991b9f4a0404fb872e39ac3248401"
+  integrity sha1-5mzmuIoZkbn0oEBPuHLjmsMkhAE=
+
 vue-router@4:
   version "4.0.6"
   resolved "https://registry.npm.taobao.org/vue-router/download/vue-router-4.0.6.tgz?cache=0&sync_timestamp=1617697726574&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-router%2Fdownload%2Fvue-router-4.0.6.tgz#91750db507d26642f225b0ec6064568e5fe448d6"

@@ -1,34 +1,122 @@
 <template>
   <div class="layout">
-
     <div class="main">
       <div class="sidebar">
         <div class="top">
-          <img
-            class="avatar"
-            src="http://47.112.172.255/assets/avatar.jpg"
-            alt="avatar"
+          <div class="drag-area"></div>
+          <a-popover placement="rightBottom">
+            <template #content>
+              <p class="poi">个人资料</p>
+              <p
+                class="poi"
+                @click="logout"
+              >退出</p>
+            </template>
+            <img
+              class="avatar poi"
+              src="http://47.112.172.255/assets/avatar.jpg"
+              alt="avatar"
+            >
+          </a-popover>
+          <div
+            title="消息"
+            class="menu-item"
+            @click="() => choose(0,'message')"
           >
-          <svg-icon title="消息" :class="current === 0 ? 'active' : ''" @click="() => choose(0)" class="icon-menu" name="message"></svg-icon>
-          <svg-icon title="联系人" :class="current === 1 ? 'active' : ''"  @click="() => choose(1)" class="icon-menu" name="user"></svg-icon>
-          <svg-icon title="TIM网盘" :class="current === 2 ? 'active' : ''"  @click="() => choose(2)"  class="icon-menu" name="cloud"></svg-icon>
+            <svg-icon
+              :class="current === 0 ? 'active' : ''"
+              class="icon-menu"
+              name="message"
+            ></svg-icon>
+          </div>
+          <div
+            title="联系人"
+            class="menu-item"
+            @click="() => choose(1,'contact')"
+          >
+            <svg-icon
+              :class="current === 1 ? 'active' : ''"
+              class="icon-menu"
+              name="user"
+            ></svg-icon>
+          </div>
+          <div
+            class="menu-item"
+            @click="() => choose(2,'cloud')"
+            title="TIM网盘"
+          >
+            <svg-icon
+              :class="current === 2 ? 'active' : ''"
+              class="icon-menu"
+              name="cloud"
+            ></svg-icon>
+          </div>
+
         </div>
         <div class="bottom">
 
         </div>
       </div>
       <div class="list">
-        list
+        <div class="drag-area"></div>
+        <div class="content">
+          <div class="flex align-center justi px-2 py-1">
+            <div class="flex justify-center align-center flex-1">
+              <a-input
+                placeholder="搜索"
+                style="height:30px;width:88%"
+                v-model:value="keywords"
+                allowClear
+              >
+                <template #prefix>
+                  <svg-icon name="search" />
+                </template>
+              </a-input>
+            </div>
+            <div class="flex justify-center align-center px-2">
+              <svg-icon
+                class="poi"
+                name="add"
+              ></svg-icon>
+            </div>
+          </div>
+          <div class="friends-list">
+            <div
+              class="flex friend"
+              @click="() => handleTalk(item)"
+              v-for="(item,index) of onlines"
+              :key="index"
+            >
+              <div class="avatar">
+                <img
+                  :src="avatar"
+                  style="width:42px;height:42px"
+                >
+              </div>
+              <div class="content">
+                <div class="username">{{ item }}</div>
+                <div class="msg">{{ item.msg }}</div>
+              </div>
+              <div class="other">
+                <div class="date"> {{ item.date }}</div>
+                <div></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="main-content">
         <div class="toolbox">
+          <div class="drag-area"></div>
           <div
+            title="最小化"
             @click="() => toMain('min')"
             class="icon-wrapper"
           >
             <svg-icon name="min"></svg-icon>
           </div>
           <div
+            title="最大化"
             @click="() => toMain('max')"
             class="icon-wrapper"
           >
@@ -38,6 +126,7 @@
             ></svg-icon>
           </div>
           <div
+            title="关闭"
             @click="() => toMain('close')"
             class="icon-wrapper close"
           >
@@ -54,19 +143,59 @@
 </template>
 
 <script>
-// import { ipcRenderer } from 'electron'
 const { ipcRenderer } = require('electron')
-import { ref } from 'vue'
+import { computed, inject, reactive, ref, toRefs, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import avatar from '@/assets/avatar.jpg'
+import { useStore } from 'vuex'
 export default {
-  name:'custom-layout',
+  name: 'custom-layout',
   setup () {
-    const toMain = (msg) => ipcRenderer.send(msg)
+    const router = useRouter()
+    const store = useStore()
+    const socket = inject('socket')
+    const keywords = ref('')
+    // const state = reactive({
+    //   onlines:[{username:'123'},{username:'124443'}]
+    // })
+    const onlines = computed(() => store.state.onlineUsers)
+    const handleTalk = user => {
+      router.push({
+        name: 'message',
+        params: {
+          id: user
+        }
+      }).catch(e => console.error(e))
+    }
+    const toMain = (msg) => {
+      if (msg === 'close') {
+        ipcRenderer.send(msg)
+        socket.disconnect()
+      }
+    }
     const current = ref(0)
-    const choose = cur => current.value = cur
+    const choose = (cur, name) => {
+      router.push({
+        name
+      })
+      current.value = cur
+    }
+    const logout = () => {
+      socket.emit('logout', store.state.username)
+      router.push({
+        name: 'login'
+      })
+    }
     return {
       toMain,
       current,
-      choose
+      choose,
+      keywords,
+      logout,
+      avatar,
+      onlines,
+      handleTalk
+      // ...toRefs(state)
     }
   }
 }
@@ -74,17 +203,30 @@ export default {
 
 <style lang="scss" scoped>
 .layout {
-  .active{
+  .menu-item {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .drag-area {
+    height: 22px;
+    line-height: 22px;
+    // flex: 1;
+    width: 100%;
+    -webkit-app-region: drag;
+  }
+  .active {
     background: red;
   }
-  .icon-menu{
-    &:first-of-type{
-      margin-top:28px;
+  .icon-menu {
+    &:first-of-type {
+      margin-top: 8px;
     }
     cursor: pointer;
-    padding:8px 0;
-    width:32px;
-    height:32px;
+    padding: 8px 0;
+    width: 32px;
+    height: 32px;
   }
   .icon-wrapper {
     display: flex;
@@ -123,7 +265,6 @@ export default {
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding-top: 22px;
       background: #fff;
       border-right: 1px solid #f4f4f4;
       width: 50px;
@@ -139,14 +280,37 @@ export default {
         width: 32px;
         height: 32px;
         border-radius: 50%;
+        margin-bottom: 24px;
       }
     }
     .list {
-      padding-top: 22px;
-      min-width: 160px;
+      min-width: 180px;
       height: 100vh;
       overflow: hidden;
       border-right: 1px solid #f4f4f4;
+      .friends-list {
+        .friend {
+          padding: 4px 12px;
+          &:link,
+          &:visited,
+          &:hover,
+          &:active {
+            background-color: #ebebeb;
+          }
+          .avatar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .content {
+            padding: 0 8px;
+            flex: 1;
+          }
+          .other {
+            width: 52px;
+          }
+        }
+      }
     }
     .main-content {
       flex: 1;

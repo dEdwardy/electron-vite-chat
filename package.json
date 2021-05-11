@@ -13,6 +13,7 @@
     "normalize.css": "^8.0.1",
     "socket.io-client": "2.3.0",
     "vue": "^3.0.5",
+    "vue-native-websocket-vue3": "^3.1.0",
     "vue-router": "4",
     "vuex": "^4.0.0",
     "vuex-persistedstate": "^4.0.0-beta.3"
