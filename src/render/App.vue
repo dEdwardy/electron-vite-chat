@@ -10,7 +10,7 @@ export default defineComponent({
   setup () {
     const store = useStore()
     const username = store.state.username
-    const socket = io.connect('http://192.168.0.127:3000', {
+    let socket = io.connect('http://192.168.0.127:3000', {
       transports: ['websocket']
     })
     if (username) {

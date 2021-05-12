@@ -159,13 +159,9 @@ export default {
     //   onlines:[{username:'123'},{username:'124443'}]
     // })
     const onlines = computed(() => store.state.onlineUsers)
-    const handleTalk = user => {
-      router.push({
-        name: 'message',
-        params: {
-          id: user
-        }
-      }).catch(e => console.error(e))
+    const handleTalk = async user => {
+      const navigationResult = await router.replace('/home/'+user)
+      console.error(navigationResult)
     }
     const toMain = (msg) => {
       if (msg === 'close') {

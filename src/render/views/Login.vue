@@ -52,7 +52,7 @@
 import { defineComponent, inject, reactive, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-const { ipcRenderer } = require('electron')
+// const { ipcRenderer } = require('electron')
 
 export default defineComponent({
   setup () {
@@ -66,7 +66,7 @@ export default defineComponent({
     })
     // toolbox 通知主进程
     const toMain = (msg) => {
-      ipcRenderer.send(msg)
+      // ipcRenderer.send(msg)
       console.log(msg)
     }
     const login = () => {
