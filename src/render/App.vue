@@ -22,6 +22,9 @@ export default defineComponent({
         console.error('更新好友列表')
         socket.emit('online_users')
       })
+      socket.on('chat', msg => {
+        store.commit('handleMessage', msg)
+      })
     }
     onBeforeUnmount(() => {
       socket.disconnect()
@@ -30,9 +33,12 @@ export default defineComponent({
     provide('socket', socket)
   }
 })
-// This starter template is using Vue 3 experimental <script setup> SFCs
-// Check out https://github.com/vuejs/rfcs/blob/script-setup-2/active-rfcs/0000-script-setup.md
+
 </script>
 
 <style>
+body,
+html {
+  height: 100%;
+}
 </style>

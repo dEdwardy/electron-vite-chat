@@ -24,9 +24,8 @@
             @click="() => choose(0,'message')"
           >
             <svg-icon
-              :class="current === 0 ? 'active' : ''"
               class="icon-menu"
-              name="message"
+              :name="current === 0 ? 'message-active': 'message'"
             ></svg-icon>
           </div>
           <div
@@ -35,9 +34,8 @@
             @click="() => choose(1,'contact')"
           >
             <svg-icon
-              :class="current === 1 ? 'active' : ''"
               class="icon-menu"
-              name="user"
+              :name="current === 1 ? 'user-active': 'user'"
             ></svg-icon>
           </div>
           <div
@@ -46,9 +44,8 @@
             title="TIM网盘"
           >
             <svg-icon
-              :class="current === 2 ? 'active' : ''"
               class="icon-menu"
-              name="cloud"
+              :name="current === 2? 'cloud-active': 'cloud'"
             ></svg-icon>
           </div>
 
@@ -168,14 +165,14 @@ export default {
     const handleTalk = item => {
       console.error(item)
       nextTick(() => {
-         user.value = item
+        user.value = item
       })
     }
     const toMain = (msg) => {
       if (msg === 'close') {
-        // ipcRenderer.send(msg)
         socket.disconnect()
       }
+      // ipcRenderer.send(msg)
     }
     const current = ref(0)
     const choose = (cur, name) => {
@@ -196,7 +193,7 @@ export default {
       logout,
       avatar,
       onlines,
-      handleTalk, 
+      handleTalk,
       user
       // ...toRefs(state)
     }
@@ -228,8 +225,8 @@ export default {
     }
     cursor: pointer;
     padding: 8px 0;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
   }
   .icon-wrapper {
     display: flex;
@@ -292,10 +289,37 @@ export default {
       overflow: hidden;
       border-right: 1px solid #f4f4f4;
       .friends-list {
-        overflow-y:scroll;
-        height: calc(100vh - 50px -22px);
+        &::-webkit-scrollbar {
+          // 滚动条的背景
+          width: 16px;
+          height: 14px;
+        }
+
+        &::-webkit-scrollbar-track,
+        &::-webkit-scrollbar-thumb {
+          border-radius: 999px;
+          width: 20px;
+          border: 5px solid transparent;
+        }
+
+        &::-webkit-scrollbar-track {
+          // box-shadow: 1px 1px 5px #191a37 inset;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          //滚动条的滑块样式修改
+          width: 20px;
+          min-height: 20px;
+          background-clip: content-box;
+          box-shadow: 0 0 0 5px #999 inset;
+        }
+
+        &::-webkit-scrollbar-corner {
+          background: #191a37;
+        }
+        overflow-y: scroll;
+        height: calc(100vh - 50px - 22px);
         .friend {
-          padding: 4px 12px;
           &:link,
           &:visited,
           &:hover,
@@ -306,6 +330,7 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+            padding:8px;
           }
           .content {
             padding: 0 8px;
@@ -319,8 +344,7 @@ export default {
     }
     .main-content {
       flex: 1;
-      height: 100vh;
-      overflow: hidden;
+      background: #f5f6f7;
     }
   }
 }

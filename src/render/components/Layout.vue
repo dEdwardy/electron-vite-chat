@@ -312,6 +312,7 @@ export default {
       flex: 1;
       height: 100vh;
       overflow: hidden;
+      background: #f5f6f7;
     }
   }
 }
