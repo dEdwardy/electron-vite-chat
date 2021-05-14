@@ -4,7 +4,7 @@
       <div class="sidebar">
         <div class="top">
           <div class="drag-area"></div>
-          <a-popover placement="rightBottom">
+          <a-popover placement="rightBottom" :title="username">
             <template #content>
               <p class="poi">个人资料</p>
               <p
@@ -155,13 +155,14 @@ export default {
   setup () {
     const router = useRouter()
     const store = useStore()
+    const username= store.state.username;
     const socket = inject('socket')
     const keywords = ref('')
     const user = ref('')
     // const state = reactive({
     //   onlines:[{username:'123'},{username:'124443'}]
     // })
-    const onlines = computed(() => store.state.onlineUsers)
+    const onlines = computed(() => store.state.onlineUsers.filter(i => i !== username))
     const handleTalk = item => {
       console.error(item)
       nextTick(() => {
@@ -194,7 +195,8 @@ export default {
       avatar,
       onlines,
       handleTalk,
-      user
+      user,
+      username
       // ...toRefs(state)
     }
   }
@@ -298,7 +300,7 @@ export default {
         &::-webkit-scrollbar-track,
         &::-webkit-scrollbar-thumb {
           border-radius: 999px;
-          width: 20px;
+          width: 16px;
           border: 5px solid transparent;
         }
 
@@ -320,6 +322,7 @@ export default {
         overflow-y: scroll;
         height: calc(100vh - 50px - 22px);
         .friend {
+          padding:12px;
           &:link,
           &:visited,
           &:hover,
@@ -330,7 +333,6 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
-            padding:8px;
           }
           .content {
             padding: 0 8px;

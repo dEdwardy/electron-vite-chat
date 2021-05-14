@@ -10,18 +10,22 @@ export default defineComponent({
   setup () {
     const store = useStore()
     const username = store.state.username
-    let socket = io.connect('http://192.168.0.127:3000', {
+    let socket = io.connect('http://192.168.79.228:3000', {
       transports: ['websocket']
     })
     if (username) {
-      socket.on('online_users', users => {
-        console.error(users)
-        store.commit('setOnlineUsers', users)
-      })
+      console.log('start 监听 onlineChange')
       socket.on('onlineChange', () => {
         console.error('更新好友列表')
         socket.emit('online_users')
       })
+      
+      console.log('start 监听 online_users')
+      socket.on('online_users', users => {
+        console.error(users)
+        store.commit('setOnlineUsers', users)
+      })
+
       socket.on('chat', msg => {
         store.commit('handleMessage', msg)
       })

@@ -7,7 +7,6 @@
         </div>
         <div class="main">
           <div class="chat-records">
-            2222
             <div
               class="flex px-2 align-center py-1"
               :class="item.from == username ? 'me' :'other' "

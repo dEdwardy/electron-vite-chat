@@ -1454,16 +1454,6 @@ electron-builder@^22.9.1:
     update-notifier "^5.1.0"
     yargs "^16.2.0"
 
-electron-devtools-installer@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.nlark.com/electron-devtools-installer/download/electron-devtools-installer-3.2.0.tgz#acc48d24eb7033fe5af284a19667e73b78d406d0"
-  integrity sha1-rMSNJOtwM/5a8oShlmfnO3jUBtA=
-  dependencies:
-    rimraf "^3.0.2"
-    semver "^7.2.1"
-    tslib "^2.1.0"
-    unzip-crx-3 "^0.2.0"
-
 electron-publish@22.11.1:
   version "22.11.1"
   resolved "https://registry.nlark.com/electron-publish/download/electron-publish-22.11.1.tgz#23f3e96772b2de82c32b75e6070053ed246dfa6a"
@@ -2357,11 +2347,6 @@ image-size@^0.5.1, image-size@~0.5.0:
   resolved "https://registry.npm.taobao.org/image-size/download/image-size-0.5.5.tgz#09dfd4ab9d20e29eb1c3e80b8990378df9e3cb9c"
   integrity sha1-Cd/Uq50g4p6xw+gLiZA3jfnjy5w=
 
-immediate@~3.0.5:
-  version "3.0.6"
-  resolved "https://registry.npm.taobao.org/immediate/download/immediate-3.0.6.tgz#9db1dbd0faf8de6fbe0f5dd5e56bb606280de69b"
-  integrity sha1-nbHb0Pr43m++D13V5Wu2BigN5ps=
-
 import-fresh@^3.0.0, import-fresh@^3.2.1:
   version "3.3.0"
   resolved "https://registry.npm.taobao.org/import-fresh/download/import-fresh-3.3.0.tgz?cache=0&sync_timestamp=1608469472392&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fimport-fresh%2Fdownload%2Fimport-fresh-3.3.0.tgz#37162c25fcb9ebaa2e6e53d5b4d88ce17d9e0c2b"
@@ -2696,6 +2681,11 @@ jake@^10.6.1:
     filelist "^1.0.1"
     minimatch "^3.0.4"
 
+js-audio-recorder@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.npm.taobao.org/js-audio-recorder/download/js-audio-recorder-1.0.7.tgz#01501cb9eb143d57994b42bd5ae97974fda18908"
+  integrity sha1-AVAcuesUPVeZS0K9Wul5dP2hiQg=
+
 js-base64@^2.1.9:
   version "2.6.4"
   resolved "https://registry.npm.taobao.org/js-base64/download/js-base64-2.6.4.tgz?cache=0&sync_timestamp=1604450395858&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fjs-base64%2Fdownload%2Fjs-base64-2.6.4.tgz#f4e686c5de1ea1f867dbcad3d46d969428df98c4"
@@ -2776,16 +2766,6 @@ jsonfile@^6.0.1:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
-jszip@^3.1.0:
-  version "3.6.0"
-  resolved "https://registry.npm.taobao.org/jszip/download/jszip-3.6.0.tgz?cache=0&sync_timestamp=1612931746228&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fjszip%2Fdownload%2Fjszip-3.6.0.tgz#839b72812e3f97819cc13ac4134ffced95dd6af9"
-  integrity sha1-g5tygS4/l4GcwTrEE0/87ZXdavk=
-  dependencies:
-    lie "~3.3.0"
-    pako "~1.0.2"
-    readable-stream "~2.3.6"
-    set-immediate-shim "~1.0.1"
-
 keyv@^3.0.0:
   version "3.1.0"
   resolved "https://registry.nlark.com/keyv/download/keyv-3.1.0.tgz#ecc228486f69991e49e9476485a5be1e8fc5c4d9"
@@ -2853,13 +2833,6 @@ levn@^0.4.1:
   dependencies:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
-
-lie@~3.3.0:
-  version "3.3.0"
-  resolved "https://registry.nlark.com/lie/download/lie-3.3.0.tgz#dcf82dee545f46074daf200c7c1c5a08e0f40f6a"
-  integrity sha1-3Pgt7lRfRgdNryAMfBxaCOD0D2o=
-  dependencies:
-    immediate "~3.0.5"
 
 load-json-file@^2.0.0:
   version "2.0.0"
@@ -3065,7 +3038,7 @@ mixin-deep@^1.2.0:
     for-in "^1.0.2"
     is-extendable "^1.0.1"
 
-mkdirp@^0.5.1, mkdirp@^0.5.4:
+mkdirp@^0.5.4:
   version "0.5.5"
   resolved "https://registry.nlark.com/mkdirp/download/mkdirp-0.5.5.tgz?cache=0&sync_timestamp=1618847144152&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fmkdirp%2Fdownload%2Fmkdirp-0.5.5.tgz#d91cefd62d1436ca0f41620e251288d420099def"
   integrity sha1-2Rzv1i0UNsoPQWIOJRKI1CAJne8=
@@ -3299,11 +3272,6 @@ package-json@^6.3.0:
     registry-auth-token "^4.0.0"
     registry-url "^5.0.0"
     semver "^6.2.0"
-
-pako@~1.0.2:
-  version "1.0.11"
-  resolved "https://registry.nlark.com/pako/download/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
-  integrity sha1-bJWZ00DVTf05RjgCUqNXBaa5kr8=
 
 param-case@^3.0.4:
   version "3.0.4"
@@ -3674,7 +3642,7 @@ read-pkg@^2.0.0:
     normalize-package-data "^2.3.2"
     path-type "^2.0.0"
 
-readable-stream@^2.2.2, readable-stream@~2.3.6:
+readable-stream@^2.2.2:
   version "2.3.7"
   resolved "https://registry.npm.taobao.org/readable-stream/download/readable-stream-2.3.7.tgz#1eca1cf711aef814c04f62252a36a62f6cb23b57"
   integrity sha1-Hsoc9xGu+BTAT2IlKjamL2yyO1c=
@@ -3908,11 +3876,6 @@ serialize-error@^7.0.1:
   integrity sha1-8TYLBEf2H/tIPsQVfHN/q313jhg=
   dependencies:
     type-fest "^0.13.1"
-
-set-immediate-shim@~1.0.1:
-  version "1.0.1"
-  resolved "https://registry.npm.taobao.org/set-immediate-shim/download/set-immediate-shim-1.0.1.tgz#4b2b1b27eb808a9f8dcc481a58e5e56f599f3f61"
-  integrity sha1-SysbJ+uAip+NzEgaWOXlb1mfP2E=
 
 set-value@^2.0.0, set-value@^2.0.1:
   version "2.0.1"
@@ -4443,7 +4406,7 @@ tslib@^1.10.0:
   resolved "https://registry.npm.taobao.org/tslib/download/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha1-zy04vcNKE0vK8QkcQfZhni9nLQA=
 
-tslib@^2.0.3, tslib@^2.1.0:
+tslib@^2.0.3:
   version "2.2.0"
   resolved "https://registry.npm.taobao.org/tslib/download/tslib-2.2.0.tgz#fb2c475977e35e241311ede2693cee1ec6698f5c"
   integrity sha1-+yxHWXfjXiQTEe3iaTzuHsZpj1w=
@@ -4536,15 +4499,6 @@ unset-value@^1.0.0:
   dependencies:
     has-value "^0.3.1"
     isobject "^3.0.0"
-
-unzip-crx-3@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.npm.taobao.org/unzip-crx-3/download/unzip-crx-3-0.2.0.tgz#d5324147b104a8aed9ae8639c95521f6f7cda292"
-  integrity sha1-1TJBR7EEqK7ZroY5yVUh9vfNopI=
-  dependencies:
-    jszip "^3.1.0"
-    mkdirp "^0.5.1"
-    yaku "^0.16.6"
 
 update-notifier@^5.1.0:
   version "5.1.0"
@@ -4690,6 +4644,15 @@ vue-eslint-parser@^7.6.0:
     esquery "^1.4.0"
     lodash "^4.17.15"
 
+vue-mobile-audio@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.nlark.com/vue-mobile-audio/download/vue-mobile-audio-0.1.3.tgz#2d3ad5d78520579442fc9673a730faf00a311896"
+  integrity sha1-LTrV14UgV5RC/JZzpzD68AoxGJY=
+  dependencies:
+    vue "^2.5.17"
+    vue-router "^3.0.1"
+    vuex "^3.0.1"
+
 vue-native-websocket-vue3@^3.1.0:
   version "3.1.0"
   resolved "https://registry.nlark.com/vue-native-websocket-vue3/download/vue-native-websocket-vue3-3.1.0.tgz#e66ce6b88a1991b9f4a0404fb872e39ac3248401"
@@ -4700,12 +4663,22 @@ vue-router@4:
   resolved "https://registry.npm.taobao.org/vue-router/download/vue-router-4.0.6.tgz?cache=0&sync_timestamp=1617697726574&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-router%2Fdownload%2Fvue-router-4.0.6.tgz#91750db507d26642f225b0ec6064568e5fe448d6"
   integrity sha1-kXUNtQfSZkLyJbDsYGRWjl/kSNY=
 
+vue-router@^3.0.1:
+  version "3.5.1"
+  resolved "https://registry.nlark.com/vue-router/download/vue-router-3.5.1.tgz#edf3cf4907952d1e0583e079237220c5ff6eb6c9"
+  integrity sha1-7fPPSQeVLR4Fg+B5I3Igxf9utsk=
+
 vue-types@^3.0.0:
   version "3.0.2"
   resolved "https://registry.npm.taobao.org/vue-types/download/vue-types-3.0.2.tgz#ec16e05d412c038262fc1efa4ceb9647e7fb601d"
   integrity sha1-7BbgXUEsA4Ji/B76TOuWR+f7YB0=
   dependencies:
     is-plain-object "3.0.1"
+
+vue@^2.5.17:
+  version "2.6.12"
+  resolved "https://registry.nlark.com/vue/download/vue-2.6.12.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fvue%2Fdownload%2Fvue-2.6.12.tgz#f5ebd4fa6bd2869403e29a896aed4904456c9123"
+  integrity sha1-9evU+mvShpQD4pqJau1JBEVskSM=
 
 vue@^3.0.0, vue@^3.0.5:
   version "3.0.11"
@@ -4723,6 +4696,11 @@ vuex-persistedstate@^4.0.0-beta.3:
   dependencies:
     deepmerge "^4.2.2"
     shvl "^2.0.2"
+
+vuex@^3.0.1:
+  version "3.6.2"
+  resolved "https://registry.npm.taobao.org/vuex/download/vuex-3.6.2.tgz#236bc086a870c3ae79946f107f16de59d5895e71"
+  integrity sha1-I2vAhqhww655lG8QfxbeWdWJXnE=
 
 vuex@^4.0.0:
   version "4.0.0"
@@ -4826,11 +4804,6 @@ y18n@^5.0.5:
   version "5.0.8"
   resolved "https://registry.npm.taobao.org/y18n/download/y18n-5.0.8.tgz?cache=0&sync_timestamp=1617822642544&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fy18n%2Fdownload%2Fy18n-5.0.8.tgz#7f4934d0f7ca8c56f95314939ddcd2dd91ce1d55"
   integrity sha1-f0k00PfKjFb5UxSTndzS3ZHOHVU=
-
-yaku@^0.16.6:
-  version "0.16.7"
-  resolved "https://registry.npm.taobao.org/yaku/download/yaku-0.16.7.tgz#1d195c78aa9b5bf8479c895b9504fd4f0847984e"
-  integrity sha1-HRlceKqbW/hHnIlblQT9TwhHmE4=
 
 yallist@^3.0.2:
   version "3.1.1"
