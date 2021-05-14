@@ -7,45 +7,57 @@
         </div>
         <div class="main">
           <div class="chat-records">
-            <div
-              class="flex px-2 align-center py-1"
-              :class="item.from == username ? 'me' :'other' "
-              v-for="(item,index) of records"
-              :key="index"
-            >
-              <img
-                :src="avatar"
-                style="width:36px;height:36px;border-radius:50%;margin:0 12px"
+            <div class="records">
+              <div
+                class="flex px-2 align-center py-1"
+                :class="item.from == username ? 'me' :'other' "
+                v-for="(item,index) of records"
+                :key="index"
               >
-              <div>
-                <div
-                  class="flex "
-                  :class="item.from == username ? 'justify-end' :'' "
+                <img
+                  :src="avatar"
+                  style="width:36px;height:36px;border-radius:50%;margin:0 12px"
                 >
-                  {{item.from}}
-                </div>
-                <!-- text消息 -->
-                <div
-                  v-if="item.type=='text'"
-                  class="msg"
-                >
-                  {{ item.msg }}
-                </div>
-                <!-- 语音消息 -->
-                <div
-                  style="margin-top:12px"
-                  v-else-if="item.type == 'audio'"
-                >
-                  <!-- <m-audio
-                    v-if="item.src"
-                    :showDuration="false"
-                    :block="false"
-                    :src="item.src"
-                  ></m-audio> -->
+                <div>
+                  <div
+                    class="flex "
+                    :class="item.from == username ? 'justify-end' :'' "
+                  >
+                    {{item.from}}
+                  </div>
+                  <!-- text消息 -->
+                  <div
+                    v-if="item.type=='text'"
+                    class="msg"
+                  >
+                    {{ item.msg }}
+                  </div>
+                  <!-- 语音消息 -->
+                  <div
+                    style="margin-top:12px"
+                    v-else-if="item.type == 'audio'"
+                  >
+                    <!-- <CustomAudio
+                      v-if="item.src"
+                      :showDuration="false"
+                      :block="false"
+                      :src="item.src"
+                    ></CustomAudio> -->
+                    <audio :src="item.src" controls></audio>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <div class="voice-record">
+            <div v-if="voiceVisible">
+              <voice-recorder
+                @send="handleSend"
+                @cancel="handleCancel"
+              ></voice-recorder>
+            </div>
+          </div>
+
           <div class="user-input">
             <div class="flex align-center tools">
               <div class="tool">
@@ -84,6 +96,24 @@
                   name="video"
                 ></svg-icon>
               </div>
+              <div class="tool">
+                <a-dropdown
+                  :trigger="['click']"
+                  placement="topLeft"
+                >
+                  <svg-icon
+                    class="icon"
+                    name="more"
+                  ></svg-icon>
+                  <template #overlay>
+                    <a-menu>
+                      <a-menu-item>
+                        <span @click="showVoicInput">语音消息</span>
+                      </a-menu-item>
+                    </a-menu>
+                  </template>
+                </a-dropdown>
+              </div>
             </div>
             <div class="input-area">
               <a-textarea
@@ -112,6 +142,7 @@
 </template>
 
 <script>
+import VoiceRecorder from '@/components/VoiceRecorder.vue'
 import { ref, computed, inject } from 'vue';
 import bg from "../assets/bg.png";
 import avatar from "../assets/avatar.jpg";
@@ -122,6 +153,9 @@ export default {
       type: String,
       default: ''
     }
+  },
+  components: {
+    VoiceRecorder,
   },
   setup (props) {
     const socket = inject('socket')
@@ -158,13 +192,37 @@ export default {
       store.commit('handleSendMessage', data)
       msg.value = ''
     }
+    const voiceVisible = ref(false)
+    const showVoicInput = () => {
+      voiceVisible.value = true
+    }
+    const handleSend = (blob) => {
+      const data = {
+        from: username,
+        to: props.user,
+        msg: blob,
+        type: 'audio',
+        time: Date.now()
+      }
+      store.commit('handleSendMessage', data)
+      socket.emit('chat', data)
+      voiceVisible.value = false
+    }
+    const handleCancel = () => {
+      console.log('cancel')
+      voiceVisible.value = false
+    }
     return {
       bg,
       msg,
       records,
       username,
       avatar,
-      handleSendMsg
+      handleSendMsg,
+      voiceVisible,
+      showVoicInput,
+      handleSend,
+      handleCancel
     }
   }
 }
@@ -180,56 +238,69 @@ export default {
     height: calc(100vh - 62px);
     .chat-records {
       background: #f5f6f7;
-      .me {
-        flex-direction: row-reverse;
-        .msg {
-          box-shadow: 0px 2px 19px 0px rgba(0, 0, 0, 0.13);
-          position: relative;
-          padding:4px 8px;
-          background-color: #1e6eff;
-          color: #fff;
-          &::after {
+      display: flex;
+      flex-direction: column;
+      .records {
+        flex: 1;
+        .me {
+          flex-direction: row-reverse;
+          .msg {
             box-shadow: 0px 2px 19px 0px rgba(0, 0, 0, 0.13);
-            position: absolute;
-            top:0;
-            right: -4px;
-            content: '';
-            width: 0;
-            height: 0;
-            border-width: 0 4px 4px;
-            border-style: solid;
-            border-color: transparent transparent #1e6eff;
-            transform: rotate(-45deg);
+            position: relative;
+            padding: 4px 8px;
+            background-color: #1e6eff;
+            color: #fff;
+            &::after {
+              box-shadow: 0px 2px 19px 0px rgba(0, 0, 0, 0.13);
+              position: absolute;
+              top: 0;
+              right: -4px;
+              content: '';
+              width: 0;
+              height: 0;
+              border-width: 0 4px 4px;
+              border-style: solid;
+              border-color: transparent transparent #1e6eff;
+              transform: rotate(-45deg);
+            }
+          }
+        }
+        .other {
+          flex-direction: row;
+          .msg {
+            box-shadow: 0px 2px 19px 0px rgba(0, 0, 0, 0.13);
+            position: relative;
+            padding: 4px 8px;
+            background-color: #fff;
+            color: #000;
+            &::before {
+              box-shadow: 0px 2px 19px 0px rgba(0, 0, 0, 0.13);
+              position: absolute;
+              color: transparent;
+              top: 0;
+              left: -4px;
+              content: '';
+              width: 0;
+              height: 0;
+              border-width: 0 4px 4px;
+              border-style: solid;
+              border-color: transparent transparent #fff;
+              transform: rotate(45deg);
+            }
           }
         }
       }
-      .other {
-        flex-direction: row;
-        .msg {
-          box-shadow: 0px 2px 19px 0px rgba(0, 0, 0, 0.13);
-          position: relative;
-          padding:4px 8px;
-          background-color: #fff;
-          color: #000;
-          &::before {
-            box-shadow: 0px 2px 19px 0px rgba(0, 0, 0, 0.13);
-            position: absolute;
-            color: transparent;
-            top:0;
-            left: -4px;
-            content: '';
-            width: 0;
-            height: 0;
-            border-width: 0 4px 4px;
-            border-style: solid;
-            border-color: transparent transparent #fff;
-            transform: rotate(45deg);
-          }
+      .voice-record {
+        outline: none !important;
+        & ::v-deep(.ant-dropdown-open.ant-dropdown-open:focus) {
+          border: none;
+          outline: none !important;
         }
+        height: 25px;
       }
       padding: 0 0 0 16px;
-      overflow-y: scroll;
       height: 900px;
+      overflow-y: scroll;
       flex: 1;
       &::-webkit-scrollbar {
         // 滚动条的背景

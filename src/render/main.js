@@ -7,10 +7,11 @@ import router from '@/router'
 import store from '@/store'
 import SvgIcon from '@/components/SvgIcon.vue'
 import '@/common/public.scss'
-
-createApp(App)
+import loadPlugin from '@/plugins/antd-vue'
+const app = createApp(App)
   .use(router)
   .use(store)
-  .use(Antd)
   .component('svg-icon', SvgIcon)
-  .mount('#app')
+
+  loadPlugin(app)
+  app.mount('#app')
