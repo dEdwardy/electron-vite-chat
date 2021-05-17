@@ -43,9 +43,36 @@
                       :block="false"
                       :src="item.src"
                     ></CustomAudio> -->
-                    <audio :src="item.src" controls></audio>
+                    <audio
+                      :src="item.src"
+                      controls
+                    ></audio>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div
+              v-if="videoVisible"
+              class="videos"
+            >
+              <div
+                @click="closeVideo"
+                class="poi"
+                style="text-align:right"
+              >关闭</div>
+              <div class="other flex-1">
+                <video
+                  ref="other"
+                  autoplay
+                  style="width:100%;height:100%"
+                ></video>
+              </div>
+              <div class="me flex-1">
+                <video
+                  ref="me"
+                  autoplay
+                  style="width:100%;height:100%"
+                ></video>
               </div>
             </div>
           </div>
@@ -90,7 +117,10 @@
                   name="phone"
                 ></svg-icon>
               </div>
-              <div class="tool">
+              <div
+                @click="handleCallVideo"
+                class="tool"
+              >
                 <svg-icon
                   class="icon"
                   name="video"
@@ -142,8 +172,9 @@
 </template>
 
 <script>
+import { useUserMedia } from '@vueuse/core'
 import VoiceRecorder from '@/components/VoiceRecorder.vue'
-import { ref, computed, inject } from 'vue';
+import { ref, computed, inject, watchEffect } from 'vue';
 import bg from "../assets/bg.png";
 import avatar from "../assets/avatar.jpg";
 import { useStore } from 'vuex';
@@ -196,6 +227,7 @@ export default {
     const showVoicInput = () => {
       voiceVisible.value = true
     }
+    //发送语音消息
     const handleSend = (blob) => {
       const data = {
         from: username,
@@ -208,9 +240,29 @@ export default {
       socket.emit('chat', data)
       voiceVisible.value = false
     }
+    //取消语音消息
     const handleCancel = () => {
       console.log('cancel')
       voiceVisible.value = false
+    }
+    const videoVisible = ref(false)
+    //发起视频通话
+    const { stream, start, stop } = useUserMedia()
+    const handleCallVideo = () => {
+      videoVisible.value = true
+      start()
+    }
+    const me = ref(null)
+    const other = ref(null)
+    watchEffect(() => {
+      if (me.value) {
+        me.value.srcObject = stream.value
+      }
+    })
+    const closeVideo = () => {
+      stop()
+      console.log(stream.value)
+      videoVisible.value = false
     }
     return {
       bg,
@@ -222,7 +274,12 @@ export default {
       voiceVisible,
       showVoicInput,
       handleSend,
-      handleCancel
+      handleCancel,
+      videoVisible,
+      handleCallVideo,
+      closeVideo,
+      me,
+      other
     }
   }
 }
@@ -239,7 +296,14 @@ export default {
     .chat-records {
       background: #f5f6f7;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      .videos {
+        border-left: 1px solid #e0e0e0;
+        width: 340px;
+        padding: 0 2px;
+        display: flex;
+        flex-direction: column;
+      }
       .records {
         flex: 1;
         .me {
