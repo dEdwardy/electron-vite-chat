@@ -63,6 +63,7 @@
               <div class="other flex-1">
                 <video
                   ref="other"
+                  id="other"
                   autoplay
                   style="width:100%;height:100%"
                 ></video>
@@ -174,7 +175,7 @@
 <script>
 import { useUserMedia } from '@vueuse/core'
 import VoiceRecorder from '@/components/VoiceRecorder.vue'
-import { ref, computed, inject, watchEffect } from 'vue';
+import { ref, computed, inject, watchEffect, nextTick } from 'vue';
 import bg from "../assets/bg.png";
 import avatar from "../assets/avatar.jpg";
 import { useStore } from 'vuex';
@@ -245,18 +246,135 @@ export default {
       console.log('cancel')
       voiceVisible.value = false
     }
+    //视频通话
     const videoVisible = ref(false)
-    //发起视频通话
-    const { stream, start, stop } = useUserMedia()
-    const handleCallVideo = () => {
-      videoVisible.value = true
-      start()
-    }
     const me = ref(null)
     const other = ref(null)
+    let peer;
+    //answer
+    socket.on('answer', ({ answer }) => {
+      console.error('answer')
+      peer && peer.setRemoteDescription(answer)
+    })
+    //called
+    socket.on('called', async (callingInfo) => {
+      if (!confirm(`是否接受${props.username}的视频通话`)) {
+        socket.emit('rejectCall', callingInfo.id)
+        return
+      }
+      videoVisible.value = true
+      let localMedia = await navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: 'user' }, audio: true })
+        .catch((e) => {
+          console.log(e)
+        })
+      me.value.srcObject = localMedia
+      peer = new RTCPeerConnection()
+      peer.addEventListener('icegatheringstatechange', e => {
+        console.error('ice协商中: ', e.target.iceGatheringState)
+      })
+      // peer.addEventListener('track', e => {
+      //   console.error('track事件触发', e.stream)
+      //   console.error(other.value, e.stream)
+      //   nextTick(() => {
+      //     other.value.srcObject = e.stream
+      //   })
+      // })
+      peer.addEventListener('addstream', e => {
+        console.error('addstream事件触发', e.stream)
+        nextTick(() => {
+          other.value.srcObject = e.stream
+        })
+      })
+      peer.addEventListener('icecandidate', (event) => {
+        let icecandidate = event.candidate
+        console.warn(icecandidate)
+        if (icecandidate) {
+          console.log('发送candidate给远端')
+          socket.emit('icecandidate', {
+            icecandidate,
+            username: callingInfo.username
+          })
+        }
+      })
+      peer.setRemoteDescription(callingInfo.offer)
+      let answer = await peer.createAnswer({
+        OfferToReceiveAudio: true,
+        OfferToReceiveVideo: true,
+      })
+      peer.setLocalDescription(answer)
+      socket.emit('answer', { answer, username: props.user })
+    })
+    //icecandidate
+    socket.on('icecandidate',({ icecandidate }) => {
+      peer && peer.addIceCandidate(new RTCIceCandidate(icecandidate)).then(res => {
+        console.log(res)
+      }).catch(e => console.error(e))
+      console.error('远端添加iceCandidate',icecandidate,peer)
+    })
+    const startVideo = async () => {
+
+      let username = props.user
+      let localMedia = await navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: 'user' }, audio: true })
+        .catch((e) => {
+          console.log(e)
+        })
+      peer = new RTCPeerConnection()
+      peer.addEventListener('icegatheringstatechange', e => {
+        console.error('ice协商中: ', e.target.iceGatheringState)
+      })
+      console.error(localMedia)
+      peer.addStream(localMedia)
+      // peer.addEventListener('track', e => {
+      //   console.error('track事件触发', e.stream)
+      //   console.error(other.value, e.stream)
+      //   nextTick(() => {
+      //     other.value.srcObject = e.stream
+      //   })
+      // })
+      peer.addEventListener('addstream', e => {
+        console.error('addstream事件触发', e.stream)
+         nextTick(() => {
+          other.value.srcObject = e.stream
+        })
+      })
+      // 监听候选加入
+      peer.addEventListener('icecandidate', e => {
+        if (e.candidate) {
+          console.error(e.candidate)
+          //发送  icecandidate
+          console.error('emit', 'icecandidate')
+          socket.emit('icecandidate', {
+            icecandidate: e.candidate,
+            username,
+          })
+        }
+
+      })
+      let offer = await peer.createOffer({
+        OfferToReceiveAudio: true,
+        OfferToReceiveVideo: true,
+      })
+      console.error(offer)
+      //发送offer到 信令服务器
+      peer.setLocalDescription(offer)
+      socket.emit('offer', {
+        offer,
+        username
+      })
+    }
+    const { stream, start, stop } = useUserMedia()
+    const handleCallVideo = async () => {
+      console.error('handleCallVideo')
+      videoVisible.value = true
+      start()
+      await startVideo()
+    }
     watchEffect(() => {
       if (me.value) {
         me.value.srcObject = stream.value
+        console.error('me', stream.value)
       }
     })
     const closeVideo = () => {
