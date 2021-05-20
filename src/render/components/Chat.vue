@@ -191,12 +191,10 @@ export default {
   },
   setup (props) {
     const socket = inject('socket')
-    console.error(socket)
     const msg = ref('')
     const store = useStore()
     const username = store.state.username;
     const records = computed(() => {
-      console.error('computed ...................................')
       const from = store.state.messages.filter(i => i.from === props.user)
       const send = store.state.messages_send.filter(i => i.to === props.user)
       const res = [...send, ...from].sort((pre, cur) => pre.time - cur.time).map(i => {
@@ -209,7 +207,6 @@ export default {
           return i
         }
       })
-      console.error((res))
       return res
     })
     const handleSendMsg = () => {
@@ -243,7 +240,6 @@ export default {
     }
     //取消语音消息
     const handleCancel = () => {
-      console.log('cancel')
       voiceVisible.value = false
     }
     //视频通话
@@ -253,12 +249,12 @@ export default {
     let peer;
     //answer
     socket.on('answer', ({ answer }) => {
-      console.error('answer')
+      console.error('answer', peer)
       peer && peer.setRemoteDescription(answer)
     })
     //called
     socket.on('called', async (callingInfo) => {
-      if (!confirm(`是否接受${props.username}的视频通话`)) {
+      if (!confirm(`是否接受${props.user}的视频通话`)) {
         socket.emit('rejectCall', callingInfo.id)
         return
       }
@@ -269,28 +265,26 @@ export default {
           console.log(e)
         })
       me.value.srcObject = localMedia
-      peer = new RTCPeerConnection()
+      peer = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.services.mozilla.com" }], sdpSemantics: 'plan-b' }, {
+        optional: [{ RtpDataChannels: true }]
+      })
+      console.error('create peer')
       peer.addEventListener('icegatheringstatechange', e => {
         console.error('ice协商中: ', e.target.iceGatheringState)
       })
-      // peer.addEventListener('track', e => {
-      //   console.error('track事件触发', e.stream)
-      //   console.error(other.value, e.stream)
-      //   nextTick(() => {
-      //     other.value.srcObject = e.stream
-      //   })
-      // })
+      peer.addEventListener('track', e => {
+        console.error('track事件触发', e.stream)
+        console.error(other.value, e.stream)
+      })
       peer.addEventListener('addstream', e => {
         console.error('addstream事件触发', e.stream)
-        nextTick(() => {
-          other.value.srcObject = e.stream
-        })
+        console.error(other.value)
+        other.value.srcObject = e.stream
       })
-      peer.addEventListener('icecandidate', (event) => {
-        let icecandidate = event.candidate
-        console.warn(icecandidate)
+      peer.addEventListener('icecandidate', (e) => {
+        let icecandidate = e.candidate
         if (icecandidate) {
-          console.log('发送candidate给远端')
+          console.error('发送candidate给远端')
           socket.emit('icecandidate', {
             icecandidate,
             username: callingInfo.username
@@ -304,13 +298,15 @@ export default {
       })
       peer.setLocalDescription(answer)
       socket.emit('answer', { answer, username: props.user })
+      console.error('emit answer to:', props.user)
     })
     //icecandidate
-    socket.on('icecandidate',({ icecandidate }) => {
-      peer && peer.addIceCandidate(new RTCIceCandidate(icecandidate)).then(res => {
-        console.log(res)
-      }).catch(e => console.error(e))
-      console.error('远端添加iceCandidate',icecandidate,peer)
+    socket.on('icecandidate', ({ icecandidate }) => {
+      if (icecandidate) {
+        peer && peer.addIceCandidate(new RTCIceCandidate(icecandidate))
+        console.error('远端添加iceCandidate', icecandidate)
+      }
+
     })
     const startVideo = async () => {
 
@@ -320,31 +316,30 @@ export default {
         .catch((e) => {
           console.log(e)
         })
-      peer = new RTCPeerConnection()
+      peer = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.services.mozilla.com" }], sdpSemantics: 'plan-b' }, {
+        optional: [{ RtpDataChannels: true }]
+      })
+       peer.addEventListener('addstream', e => {
+        console.error('addstream事件触发')
+        cosnole.error(other.value)
+        cosnole.error(e.stream)
+        other.value.srcObject = e.stream
+      })
       peer.addEventListener('icegatheringstatechange', e => {
         console.error('ice协商中: ', e.target.iceGatheringState)
       })
-      console.error(localMedia)
-      peer.addStream(localMedia)
-      // peer.addEventListener('track', e => {
-      //   console.error('track事件触发', e.stream)
-      //   console.error(other.value, e.stream)
-      //   nextTick(() => {
-      //     other.value.srcObject = e.stream
-      //   })
-      // })
-      peer.addEventListener('addstream', e => {
-        console.error('addstream事件触发', e.stream)
-         nextTick(() => {
-          other.value.srcObject = e.stream
-        })
+      console.error('addStream')
+      peer && localMedia && peer.addStream(localMedia)
+      peer.addEventListener('track', e => {
+        console.error('track事件触发', e.stream)
       })
+     
       // 监听候选加入
       peer.addEventListener('icecandidate', e => {
         if (e.candidate) {
-          console.error(e.candidate)
+          // console.error(e.candidate)
           //发送  icecandidate
-          console.error('emit', 'icecandidate')
+          // console.error('emit', 'icecandidate')
           socket.emit('icecandidate', {
             icecandidate: e.candidate,
             username,
@@ -356,7 +351,7 @@ export default {
         OfferToReceiveAudio: true,
         OfferToReceiveVideo: true,
       })
-      console.error(offer)
+      // console.error(offer)
       //发送offer到 信令服务器
       peer.setLocalDescription(offer)
       socket.emit('offer', {
@@ -366,7 +361,6 @@ export default {
     }
     const { stream, start, stop } = useUserMedia()
     const handleCallVideo = async () => {
-      console.error('handleCallVideo')
       videoVisible.value = true
       start()
       await startVideo()
@@ -374,12 +368,10 @@ export default {
     watchEffect(() => {
       if (me.value) {
         me.value.srcObject = stream.value
-        console.error('me', stream.value)
       }
     })
     const closeVideo = () => {
       stop()
-      console.log(stream.value)
       videoVisible.value = false
     }
     return {
