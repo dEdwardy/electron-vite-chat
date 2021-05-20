@@ -175,7 +175,7 @@
 <script>
 import { useUserMedia } from '@vueuse/core'
 import VoiceRecorder from '@/components/VoiceRecorder.vue'
-import { ref, computed, inject, watchEffect, nextTick } from 'vue';
+import { ref, computed, inject, watchEffect, nextTick, watch } from 'vue';
 import bg from "../assets/bg.png";
 import avatar from "../assets/avatar.jpg";
 import { useStore } from 'vuex';
@@ -246,7 +246,7 @@ export default {
     const videoVisible = ref(false)
     const me = ref(null)
     const other = ref(null)
-    let peer;
+    let peer = new RTCPeerConnection()
     //answer
     socket.on('answer', ({ answer }) => {
       console.error('answer', peer)
@@ -264,22 +264,23 @@ export default {
         .catch((e) => {
           console.log(e)
         })
-      me.value.srcObject = localMedia
-      peer = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.services.mozilla.com" }], sdpSemantics: 'plan-b' }, {
-        optional: [{ RtpDataChannels: true }]
+      watchEffect(() => {
+        if(me.value){
+          me.value.srcObject = localMedia
+        }
       })
       console.error('create peer')
       peer.addEventListener('icegatheringstatechange', e => {
         console.error('ice协商中: ', e.target.iceGatheringState)
-      })
-      peer.addEventListener('track', e => {
-        console.error('track事件触发', e.stream)
-        console.error(other.value, e.stream)
+        console.error(peer)
       })
       peer.addEventListener('addstream', e => {
-        console.error('addstream事件触发', e.stream)
-        console.error(other.value)
+        console.error('addstream事件触发 peer called',e.stream)
         other.value.srcObject = e.stream
+      })
+      peer.addEventListener('track', e => {
+        console.error('track事件触发  peer',e)
+        // other.value.srcObject = e.stream
       })
       peer.addEventListener('icecandidate', (e) => {
         let icecandidate = e.candidate
@@ -293,9 +294,10 @@ export default {
       })
       peer.setRemoteDescription(callingInfo.offer)
       let answer = await peer.createAnswer({
-        OfferToReceiveAudio: true,
-        OfferToReceiveVideo: true,
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true,
       })
+      
       peer.setLocalDescription(answer)
       socket.emit('answer', { answer, username: props.user })
       console.error('emit answer to:', props.user)
@@ -304,42 +306,35 @@ export default {
     socket.on('icecandidate', ({ icecandidate }) => {
       if (icecandidate) {
         peer && peer.addIceCandidate(new RTCIceCandidate(icecandidate))
-        console.error('远端添加iceCandidate', icecandidate)
+        console.error('远端添加iceCandidate')
       }
 
     })
+    //call
     const startVideo = async () => {
-
       let username = props.user
       let localMedia = await navigator.mediaDevices
         .getUserMedia({ video: { facingMode: 'user' }, audio: true })
         .catch((e) => {
           console.log(e)
         })
-      peer = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.services.mozilla.com" }], sdpSemantics: 'plan-b' }, {
-        optional: [{ RtpDataChannels: true }]
-      })
-       peer.addEventListener('addstream', e => {
-        console.error('addstream事件触发')
-        cosnole.error(other.value)
-        cosnole.error(e.stream)
+        
+      peer.addEventListener('addstream', e => {
+        console.error('addstream事件触发 peer call',e)
         other.value.srcObject = e.stream
+      })
+      peer.addEventListener('track', e => {
+        console.error('track  事件触发 peer',e)
+        // other.value.srcObject = e.stream
       })
       peer.addEventListener('icegatheringstatechange', e => {
         console.error('ice协商中: ', e.target.iceGatheringState)
+        console.error(peer)
       })
-      console.error('addStream')
-      peer && localMedia && peer.addStream(localMedia)
-      peer.addEventListener('track', e => {
-        console.error('track事件触发', e.stream)
-      })
-     
       // 监听候选加入
       peer.addEventListener('icecandidate', e => {
         if (e.candidate) {
-          // console.error(e.candidate)
           //发送  icecandidate
-          // console.error('emit', 'icecandidate')
           socket.emit('icecandidate', {
             icecandidate: e.candidate,
             username,
@@ -348,11 +343,13 @@ export default {
 
       })
       let offer = await peer.createOffer({
-        OfferToReceiveAudio: true,
-        OfferToReceiveVideo: true,
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true,
       })
       // console.error(offer)
       //发送offer到 信令服务器
+      
+      peer && localMedia && peer.addStream(localMedia)
       peer.setLocalDescription(offer)
       socket.emit('offer', {
         offer,
@@ -361,7 +358,7 @@ export default {
     }
     const { stream, start, stop } = useUserMedia()
     const handleCallVideo = async () => {
-      videoVisible.value = true
+      videoVisible.value = true 
       start()
       await startVideo()
     }
