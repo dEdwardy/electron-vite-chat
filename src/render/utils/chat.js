@@ -20,15 +20,17 @@ export class Chat {
       this.getCallReject && this.getCallReject()
     })
 
-    this.socket.on('iceCandidate', ({ iceCandidate }) => {
-      console.log('远端添加iceCandidate')
-      this.peer && this.peer.addIceCandidate(new RTCIceCandidate(iceCandidate))
+    this.socket.on('icecandidate', ({ icecandidate }) => {
+      if(icecandidate){
+        console.log('远端添加icecandidate')
+        this.peer && this.peer.addIceCandidate(new RTCIceCandidate(icecandidate))
+      }
     })
     return this
   }
   addEvent(name, cb) {
     if (!this.socket) return
-    this.this.socket.on(name, (data) => {
+    this.socket.on(name, (data) => {
       cb.call(this, data)
     })
   }
@@ -58,7 +60,7 @@ export class Chat {
   createLoacalPeer() {
     console.error('create peer')
     // const servers = {iceServers: [{urls: "stun:stun.services.mozilla.com"}], sdpSemantics:'plan-b'};
-    this.peer = new RTCPeerConnection(servers)
+    this.peer = new RTCPeerConnection()
     return this
   }
   // 将媒体流加入通信
@@ -105,7 +107,7 @@ export class Chat {
     this.peer.addEventListener('icecandidate', (event) => {
       let iceCandidate = event.candidate
       if (iceCandidate) {
-        console.log('发送candidate给远端')
+        console.log('发送candidate给远端', iceCandidate)
         cb && cb(iceCandidate)
       }
     })
