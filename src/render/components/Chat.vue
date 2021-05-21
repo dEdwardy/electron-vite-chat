@@ -63,7 +63,7 @@
               <div class="other flex-1">
                 <video
                   ref="other"
-                  id="other"
+                  id="remote-video"
                   autoplay
                   style="width:100%;height:100%"
                 ></video>
@@ -71,6 +71,7 @@
               <div class="me flex-1">
                 <video
                   ref="me"
+                  id="local-video"
                   autoplay
                   style="width:100%;height:100%"
                 ></video>
@@ -179,6 +180,7 @@ import { ref, computed, inject, watchEffect, nextTick, watch } from 'vue';
 import bg from "../assets/bg.png";
 import avatar from "../assets/avatar.jpg";
 import { useStore } from 'vuex';
+import  { Chat } from '@/utils/chat.js';
 export default {
   props: {
     user: {
@@ -246,119 +248,191 @@ export default {
     const videoVisible = ref(false)
     const me = ref(null)
     const other = ref(null)
-    let peer = new RTCPeerConnection()
+    // let peer = new RTCPeerConnection()
     //answer
-    socket.on('answer', ({ answer }) => {
-      console.error('answer', peer)
-      peer && peer.setRemoteDescription(answer)
-    })
+    // socket.on('answer', ({ answer }) => {
+    //   console.error('answer', peer)
+    //   peer && peer.setRemoteDescription(answer)
+    // })
     //called
-    socket.on('called', async (callingInfo) => {
-      if (!confirm(`是否接受${props.user}的视频通话`)) {
-        socket.emit('rejectCall', callingInfo.id)
+    // socket.on('called', async (callingInfo) => {
+    //   if (!confirm(`是否接受${props.user}的视频通话`)) {
+    //     socket.emit('rejectCall', callingInfo.id)
+    //     return
+    //   }
+    //   videoVisible.value = true
+    //   let localMedia = await navigator.mediaDevices
+    //     .getUserMedia({ video: { facingMode: 'user' }, audio: true })
+    //     .catch((e) => {
+    //       console.log(e)
+    //     })
+    //   watchEffect(() => {
+    //     if (me.value) {
+    //       me.value.srcObject = localMedia
+    //     }
+    //   })
+    //   console.error('create peer')
+    //   socket.on('icecandidate', ({ icecandidate }) => {
+    //     if (icecandidate) {
+    //       peer && peer.addIceCandidate(new RTCIceCandidate(icecandidate)).then(res => console.log(res)).catch(err => console.error(err))
+    //       console.error('远端添加iceCandidate')
+    //     }
+
+    //   })
+    //   peer.addEventListener('icegatheringstatechange', e => {
+    //     console.error('ice协商中: ', e.target.iceGatheringState)
+    //     console.error(peer)
+    //   })
+    //   peer.addEventListener('addstream', e => {
+    //     console.error('addstream事件触发 peer called', e.stream)
+    //     other.value.srcObject = e.stream
+    //   })
+    //   peer.addEventListener('track', e => {
+    //     console.error('track事件触发  peer', e)
+    //     // other.value.srcObject = e.stream
+    //   })
+    //   peer.addEventListener('icecandidate', (e) => {
+    //     let icecandidate = e.candidate
+    //     if (icecandidate) {
+    //       console.error('发送candidate给远端')
+    //       socket.emit('icecandidate', {
+    //         icecandidate,
+    //         username: callingInfo.username
+    //       })
+    //     }
+    //   })
+    //   peer.setRemoteDescription(callingInfo.offer)
+    //   let answer = await peer.createAnswer({
+    //     offerToReceiveAudio: true,
+    //     offerToReceiveVideo: true,
+    //   })
+
+    //   peer.setLocalDescription(answer)
+    //   socket.emit('answer', { answer, username: props.user })
+    //   console.error('emit answer to:', props.user)
+    // })
+    //icecandidate
+    // socket.on('icecandidate', ({ icecandidate }) => {
+    //   if (icecandidate) {
+    //     peer && peer.addIceCandidate(new RTCIceCandidate(icecandidate)).then(res => console.log(res)).catch(err => console.error(err))
+    //     console.error('远端添加iceCandidate')
+    //   }
+
+    // })
+    //call
+    // const startVideo = async () => {
+    //   let username = props.user
+    //   let localMedia = await navigator.mediaDevices
+    //     .getUserMedia({ video: { facingMode: 'user' }, audio: true })
+    //     .catch((e) => {
+    //       console.log(e)
+    //     })
+
+    //   peer.addEventListener('addstream', e => {
+    //     console.error('addstream事件触发 peer call', e)
+    //     other.value.srcObject = e.stream
+    //   })
+    //   peer.addEventListener('track', e => {
+    //     console.error('track  事件触发 peer', e)
+    //     // other.value.srcObject = e.stream
+    //   })
+    //   peer.addEventListener('icegatheringstatechange', e => {
+    //     console.error('ice协商中: ', e.target.iceGatheringState)
+    //     console.error(peer)
+    //   })
+    //   // 监听候选加入
+    //   peer.addEventListener('icecandidate', e => {
+    //     if (e.candidate) {
+    //       //发送  icecandidate
+    //       socket.emit('icecandidate', {
+    //         icecandidate: e.candidate,
+    //         username,
+    //       })
+    //     }
+
+    //   })
+    //   let offer = await peer.createOffer({
+    //     offerToReceiveAudio: true,
+    //     offerToReceiveVideo: true,
+    //   })
+    //   // console.error(offer)
+    //   //发送offer到 信令服务器
+
+    //   peer && localMedia && peer.addStream(localMedia)
+    //   peer.setLocalDescription(offer)
+    //   socket.emit('offer', {
+    //     offer,
+    //     username
+    //   })
+    // }
+
+    //v2   new Chat 
+    const getCallReject = () => {
+      chat.closeRTC()
+      // $('.local-video').fadeIn()
+      console.log('呼叫被拒');
+    }
+    const calledHandle = async (callingInfo) => {
+      if (!confirm(`是否接受${callingInfo.username}的视频通话`)) {
+        chat.sendMessage('rejectCall', callingInfo.username)
         return
       }
       videoVisible.value = true
-      let localMedia = await navigator.mediaDevices
-        .getUserMedia({ video: { facingMode: 'user' }, audio: true })
-        .catch((e) => {
-          console.log(e)
-        })
-      watchEffect(() => {
-        if(me.value){
-          me.value.srcObject = localMedia
-        }
-      })
-      console.error('create peer')
-      peer.addEventListener('icegatheringstatechange', e => {
-        console.error('ice协商中: ', e.target.iceGatheringState)
-        console.error(peer)
-      })
-      peer.addEventListener('addstream', e => {
-        console.error('addstream事件触发 peer called',e.stream)
-        other.value.srcObject = e.stream
-      })
-      peer.addEventListener('track', e => {
-        console.error('track事件触发  peer',e)
-        // other.value.srcObject = e.stream
-      })
-      peer.addEventListener('icecandidate', (e) => {
-        let icecandidate = e.candidate
-        if (icecandidate) {
-          console.error('发送candidate给远端')
-          socket.emit('icecandidate', {
-            icecandidate,
-            username: callingInfo.username
-          })
-        }
-      })
-      peer.setRemoteDescription(callingInfo.offer)
-      let answer = await peer.createAnswer({
-        offerToReceiveAudio: true,
-        offerToReceiveVideo: true,
-      })
-      
-      peer.setLocalDescription(answer)
-      socket.emit('answer', { answer, username: props.user })
-      console.error('emit answer to:', props.user)
-    })
-    //icecandidate
-    socket.on('icecandidate', ({ icecandidate }) => {
-      if (icecandidate) {
-        peer && peer.addIceCandidate(new RTCIceCandidate(icecandidate))
-        console.error('远端添加iceCandidate')
-      }
+      // $('.local-video').fadeIn()
+      await chat.getLocalMedia()
+      console.error(document.getElementById('local-video'))
+      console.error(chat.localMedia)
+      chat.setMediaTo('local-video', chat.localMedia)
 
-    })
-    //call
-    const startVideo = async () => {
-      let username = props.user
-      let localMedia = await navigator.mediaDevices
-        .getUserMedia({ video: { facingMode: 'user' }, audio: true })
-        .catch((e) => {
-          console.log(e)
-        })
-        
-      peer.addEventListener('addstream', e => {
-        console.error('addstream事件触发 peer call',e)
-        other.value.srcObject = e.stream
-      })
-      peer.addEventListener('track', e => {
-        console.error('track  事件触发 peer',e)
-        // other.value.srcObject = e.stream
-      })
-      peer.addEventListener('icegatheringstatechange', e => {
-        console.error('ice协商中: ', e.target.iceGatheringState)
-        console.error(peer)
-      })
-      // 监听候选加入
-      peer.addEventListener('icecandidate', e => {
-        if (e.candidate) {
-          //发送  icecandidate
-          socket.emit('icecandidate', {
-            icecandidate: e.candidate,
-            username,
-          })
-        }
+      chat.createLoacalPeer()
+        .listenerGatheringstatechange()
+        .addTrack()
+        .listenerCandidateAdd(function (iceCandidate) {
 
-      })
-      let offer = await peer.createOffer({
-        offerToReceiveAudio: true,
-        offerToReceiveVideo: true,
-      })
-      // console.error(offer)
-      //发送offer到 信令服务器
-      
-      peer && localMedia && peer.addStream(localMedia)
-      peer.setLocalDescription(offer)
-      socket.emit('offer', {
-        offer,
-        username
-      })
+          chat.sendMessage('icecandidate', { iceCandidate, username: callingInfo.username })
+
+        })
+        .listenerAddStream(function (stream) {
+
+          // $('.remote-video').fadeIn()
+          chat.setMediaTo('remote-video', stream)
+
+        })
+        .createAnswer(callingInfo.offer, function (answer) {
+
+          chat.sendMessage('answer', { answer, username: callingInfo.username })
+
+        })
+
     }
+    const startVideo = async () => {
+      // 初始本地视频
+      // $('.local-video').fadeIn()
+      await chat.getLocalMedia()
+      chat.setMediaTo('local-video', chat.localMedia)
+      chat.createLoacalPeer()
+        .listenerGatheringstatechange()
+        .addTrack()
+        .listenerAddStream(function (stream) {
+          // $('.remote-video').fadeIn()
+          chat.setMediaTo('remote-video', stream)
+        })
+        .listenerCandidateAdd(function (iceCandidate) {
+          chat.sendMessage('icecandidate', { iceCandidate, username: props.user })
+        })
+        .createOffer(function (offer) {
+          chat.sendMessage('offer', { offer,username: props.user })
+        })
+    }
+    let chat = new Chat({
+      socket,
+      calledHandle,
+      getCallReject
+    });
+    chat.init()
     const { stream, start, stop } = useUserMedia()
     const handleCallVideo = async () => {
-      videoVisible.value = true 
+      videoVisible.value = true
       start()
       await startVideo()
     }
